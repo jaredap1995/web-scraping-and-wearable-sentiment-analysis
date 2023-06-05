@@ -10,6 +10,9 @@ This data provided from this script will be used to perform a detailed sentiment
 
 - Efficiently scrapes thousands of reviews with the use of Bright Data Proxy Browser.
 - Uses Puppeteer, a powerful browser automation tool, to interact with the Amazon website just like a human user would.
+
+## Coming Soon
 - Performs sentiment analysis on the collected reviews to identify commonly praised and criticized product features.
+- Streamlined process that allows users to select their product of interest and allow the script to run in the background without user interaction.
 
 ------
