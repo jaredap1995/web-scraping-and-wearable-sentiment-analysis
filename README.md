@@ -22,8 +22,8 @@ You need Node.js installed on your system to run this project. If you haven't in
 After installing Node.js, clone this repository and install the dependencies with the following commands:
 
 ```sh
-git clone https://github.com/yourusername/your-repo-name.git
-cd your-repo-name
+git clone https://github.com/jaredap1995/web-scraping-and-wearable-sentiment-analysis.git
+cd web-scraping-and-wearable-sentiment-analysis
 npm install
 ```
 
