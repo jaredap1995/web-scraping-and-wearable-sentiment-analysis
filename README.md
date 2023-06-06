@@ -2,9 +2,12 @@
 
 This project harnesses the power of Node.js, Puppeteer, and the Bright Data Proxy Browser to scrape thousands of product reviews of different wearable technologies from Amazon. The inspiration and initial code template for this project was sourced from https://www.youtube.com/watch?v=qo_fUjb02ns
 
-The scraper will start scraping Amazon for reviews of wearable technology products, and the scraped data will be saved in a JSON file in the project directory.
+The scraper will start scraping Amazon for reviews of wearable technology products, and the scraped data will be saved in a JSON file in the project directory. The outputs of this web scraper essentially create a custom API for Amazon reviews.
 
-This data provided from this script will be used to perform a detailed sentiment analysis on various wearable technology products for market research, revealing which features are most frequently praised and which ones could use some improvement. More use cases for the data including a type of vector database are being workshopped. 
+![Example Output](screenshot.png "Example output")
+
+
+The subsequent data is stored in a postgres instance using the special JSONB object type and will be used to perform a detailed sentiment analysis on various wearable technology products for market research, revealing which features are most frequently praised and which ones could use some improvement. More use cases for the data including a type of vector database are being workshopped. 
 
 ## Features
 
