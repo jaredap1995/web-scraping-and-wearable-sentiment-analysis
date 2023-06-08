@@ -142,7 +142,7 @@ async function scrapeReviews(page, baseUrl, productName, progress) {
     }
 
     // Reset pageNum to 1 if we've reached the maxPages and exit the while loop
-    if (pageNum > maxPages) {
+    if (pageNum > progress.maxPages) {
         progress.pageNum = 1;
         fs.writeFileSync(`./${productName}/progress.json`, JSON.stringify(progress));
     }
