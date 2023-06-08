@@ -3,7 +3,15 @@ import fs from "fs";
 import { config } from "dotenv";
 config();
 
-async function run() {
+export async function run(productName, numberOfProducts, numberOfPages) {
+//Creates a new directory for the product if it does not already exist
+    try { fs.mkdirSync(`./${productName}`);
+    console.log(`Creating directory ${productName}, Running with productName=${productName}, numberOfProducts=${numberOfProducts}`), `numberOfPages=${numberOfPages}`; 
+        }
+    catch (err) {if (err.code!=='EEXIST') throw err;
+        else console.log(`${productName} Directory already exists, continuing with existing progress and url files`);}
+        
+
     let browser;
     try {
         const auth = `${process.env.BRIGHT_DATA_USERNAME}:${process.env.BRIGHT_DATA_PASSWORD}`;
@@ -13,12 +21,30 @@ async function run() {
 
         const page = await browser.newPage();
         page.setDefaultNavigationTimeout(2*60*1000);
-        let pageNum = 1;
-        let baseUrl = 'https://www.amazon.com/product-reviews/B09BXQ4HMB/ref=cm_cr_arp_d_viewopt_srt?sortBy=recent&pageNumber=';
 
-        await page.goto(baseUrl + pageNum);
+        let progress = {productName, productIndex: 0, reviewUrl: "", pageNum: 1, maxPages: numberOfPages}
+        let reviewUrls;
+        if (fs.existsSync(`./${productName}/progress.json`)) {
+        progress=JSON.parse(fs.readFileSync(`./${productName}/progress.json`));
+        reviewUrls= fs.readFileSync(`./${productName}/${productName}_urls.txt`, 'utf8').split('\n');
+        } else {
+        reviewUrls = await search(productName, numberOfProducts, page);
+        } 
 
-        const reviews = await scrapeReviews(page, baseUrl);
+        for (let productIndex = progress.productIndex; productIndex < reviewUrls.length; productIndex++) {	
+            console.log(`Scraping product ${productIndex + 1} of ${reviewUrls.length}`);	
+            let reviewUrl = reviewUrls[productIndex];	
+            progress.reviewUrl = reviewUrl;	
+            progress.productIndex = productIndex; // Update productIndex in progress object
+
+
+            fs.writeFileSync(`./${productName}/progress.json`, JSON.stringify(progress));
+
+            await page.goto(reviewUrl + progress.pageNum);
+            await scrapeReviews(page, reviewUrl, productName, progress);
+        }
+        
+
     }
     catch (e) {
         console.error('scrape failed', e);
@@ -30,31 +56,65 @@ async function run() {
     }
 }
 
+async function search(productName, numberOfProducts, page) {
+    console.log(`Searching with productName=${productName}, numberOfProducts=${numberOfProducts}`); // New line
+    let browser;
+    try {
+        let baseUrl = 'https://www.amazon.com/s?k=' + encodeURIComponent(productName);
 
-async function scrapeReviews(page, baseUrl) {
+        await page.goto(baseUrl);
+
+        const productIDs = await page.evaluate((numberOfProducts) => {
+            return Array.from(
+                document.querySelectorAll("div[data-asin][data-cel-widget^='search_result_']"),
+                e => {
+                    const isSponsored = e.querySelector("a.puis-sponsored-label-text") !== null;
+                    return isSponsored ? null : e.getAttribute("data-asin");
+                }).filter(e => e).slice(0,numberOfProducts); // filter out null values and empty strings because not every data-asin is a product
+        }, numberOfProducts);
+        
+
+       // Create review URLs
+       const reviewUrls = productIDs.map(id => `https://www.amazon.com/product-reviews/${id}/ref=cm_cr_arp_d_viewopt_srt?sortBy=recent&pageNumber=`);
+
+       fs.writeFileSync(`./${productName}/${productName}_urls.txt`, reviewUrls.join('\n'));
+
+       return reviewUrls;
+
+
+    } catch (error) {
+        console.error(error);
+    } finally {
+        if (browser) {
+            await browser.close();
+        }
+    }
+}
+
+
+async function scrapeReviews(page, baseUrl, productName, progress) {
     let reviews = [];
 
-    if (fs.existsSync('all_reviews.json')) {
-        reviews=JSON.parse(fs.readFileSync('all_reviews.json'));
+    console.log(`Writing file for product: ${productName}`);
+    if (fs.existsSync(`./${productName}/${productName}_reviews.json`)) {
+        reviews = JSON.parse(fs.readFileSync(`./${productName}/${productName}_reviews.json`));
     }
 
     let keepScraping = true;
-    const reviewCounts = {};
-    let pageNum = 1;
+    let pageNum = progress.pageNum; // Start from where we left off
 
-    while (keepScraping) {
+    while (keepScraping && pageNum <= progress.maxPages) {
         console.log(`Scraping page ${pageNum}`);
         // scrape reviews
         const newReviews = await scrapeCurrentPageReviews(page);
-        console.log(newReviews)
         for (let i = 0; i < newReviews.length; i++) {
             const review = newReviews[i];
             console.log(`Scraped review ${i + 1} of page ${pageNum}`);
             reviews.push(review);
         }
 
-        // write reviews to file
-        fs.writeFileSync(`all_reviews.json`, JSON.stringify(reviews));
+// write reviews to file
+        fs.writeFileSync(`./${productName}/${productName}_reviews.json`, JSON.stringify(reviews));
 
         // Check if the 'next page' button is disabled
         const isNextPageDisabled = await page.evaluate(() => {
@@ -65,16 +125,26 @@ async function scrapeReviews(page, baseUrl) {
         if (!isNextPageDisabled) {
             console.log('Going to next page');
             pageNum++;
+            progress.pageNum = pageNum; // Update pageNum in progress object
+            fs.writeFileSync(`./${productName}/progress.json`, JSON.stringify(progress));
             // Wait for navigation and then go to the next page
             const [response] = await Promise.all([
-            page.waitForNavigation(), 
-            page.goto(baseUrl + pageNum),
+                page.waitForNavigation(), 
+                page.goto(baseUrl + pageNum),
             ]);
             await page.waitForTimeout(3000);
         } else {
             keepScraping = false;
             console.log('Done scraping');
+            progress.pageNum = 1;
+            fs.writeFileSync(`./${productName}/progress.json`, JSON.stringify(progress));
+        }
     }
+
+    // Reset pageNum to 1 if we've reached the maxPages and exit the while loop
+    if (pageNum > maxPages) {
+        progress.pageNum = 1;
+        fs.writeFileSync(`./${productName}/progress.json`, JSON.stringify(progress));
     }
 
     return reviews;
@@ -144,4 +214,4 @@ async function scrapeCurrentPageReviews(page) {
     });
 }
 
-run().catch(console.error);
+// run('apple watch', 3).catch(console.error);

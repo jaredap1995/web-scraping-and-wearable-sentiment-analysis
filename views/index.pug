@@ -1,0 +1,19 @@
+doctype html
+html
+  head
+    title Amazon Scraper
+  body
+    h1 Amazon Scraper
+    form(action="/scrape" method="post")
+      input(type="text" name="newProductName" placeholder="Enter product name")
+      input(type="number" name="numberOfProducts" placeholder="Enter number of products")
+      input(type="number" name="numberOfPages" placeholder="Enter number of pages scraped (1 page = 10 reviews; If you want them all, leave this blank")
+
+      If your scraping was interrupted and want to continue scraping an existing product, select it from the list below:
+      select(name="existingProductName")
+        option(value="" disabled selected) Choose a product...
+        each product in directories
+          option(value=product) #{product}
+
+      button(type="submit", value='Get Reviews') Submit
+
