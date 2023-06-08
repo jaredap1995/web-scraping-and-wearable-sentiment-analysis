@@ -11,10 +11,11 @@ export async function run(productName, numberOfProducts, numberOfPages, attempt 
     catch (err) {if (err.code!=='EEXIST') throw err;
         else console.log(`${productName} Directory already exists, continuing with existing progress and url files`);}
 
+    let maxAttemtps = 5;
     //Setting a cap on number of restarts
-    if (attempt > 3) {
-        console.log('Scraping failed after 3 attempts. Exiting...');
-        return;
+    if (attempt > maxAttemtps) {
+        console.log(`Scraping failed after ${maxAttemtps} attempts. Exiting...`);
+        process.exit(1);
     }
         
 
@@ -57,7 +58,7 @@ export async function run(productName, numberOfProducts, numberOfPages, attempt 
         // wait for 10 seconds
         await new Promise(resolve => setTimeout(resolve, 10000));
         // then try to rerun
-        console.log('Restarting the scraping (attempt ' + (attempt + 1) + ' of 3)');
+        console.log('Restarting the scraping (attempt ' + (attempt + 1) + ' of ' + maxAttemtps + ')');
         run(productName, numberOfProducts, numberOfPages, attempt + 1);
     }
     finally{
