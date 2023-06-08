@@ -3,13 +3,19 @@ import fs from "fs";
 import { config } from "dotenv";
 config();
 
-export async function run(productName, numberOfProducts, numberOfPages) {
+export async function run(productName, numberOfProducts, numberOfPages, attempt = 1) {
 //Creates a new directory for the product if it does not already exist
     try { fs.mkdirSync(`./${productName}`);
     console.log(`Creating directory ${productName}, Running with productName=${productName}, numberOfProducts=${numberOfProducts}`), `numberOfPages=${numberOfPages}`; 
         }
     catch (err) {if (err.code!=='EEXIST') throw err;
         else console.log(`${productName} Directory already exists, continuing with existing progress and url files`);}
+
+    //Setting a cap on number of restarts
+    if (attempt > 3) {
+        console.log('Scraping failed after 3 attempts. Exiting...');
+        return;
+    }
         
 
     let browser;
@@ -48,6 +54,11 @@ export async function run(productName, numberOfProducts, numberOfPages) {
     }
     catch (e) {
         console.error('scrape failed', e);
+        // wait for 10 seconds
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        // then try to rerun
+        console.log('Restarting the scraping (attempt ' + (attempt + 1) + ' of 3)');
+        run(productName, numberOfProducts, numberOfPages, attempt + 1);
     }
     finally{
         if (browser) {
