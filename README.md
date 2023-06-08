@@ -9,6 +9,46 @@ The scraper will start scraping Amazon for reviews of the desired product, and t
 
 The subsequent data is stored in a postgres instance using the special JSONB object type and will be used to perform a detailed sentiment analysis on various wearable technology products for market research, revealing which features are most frequently praised and which ones could use some improvement. More use cases for the data including a type of vector database are being workshopped. 
 
+## Installation and Setup Instructions
+
+This project uses Node.js and Puppeteer. Follow these steps to set up and run the project on your local machine:
+1. **Clone the Repository:**
+    ```bash
+    mkdir scrpaing_directory
+    cd scraping_directory
+    git clone https://github.com/jaredap1995/web-scraping-and-wearable-sentiment-analysis.git
+    ```
+    Because the application will create and access directories it is best to use an empty directory to minimize clutter. 
+
+2. **Install Dependencies:**
+    Install the necessary dependencies by running `npm install` in your terminal.
+
+3. **Environment Variables:**
+    This project uses environment variables to handle sensitive data. Create a `.env` file in the root directory and fill it with your own information:
+    This project uses the bright_data proxy browser so that could be replaced with a different proxy browser or any individual strategy for IP rotation. 
+
+    ```env
+    BRIGHT_DATA_USERNAME=your_username
+    BRIGHT_DATA_PASSWORD=your_password
+    ```
+
+4. **Running the Project:**
+    After following the above steps, you should now be ready to run the project using the command: 
+
+    ```bash
+    node app.js
+    ```
+
+    Once the application starts, navigate to `http://localhost:3000/` in your web browser.
+
+5. **Scraping:**
+    - To scrape a new product, fill in the 'Product' field with the name of the product you wish to scrape and optionally specify the number of products (defaults to 1 though it is reccomended to do more than 1 as the products are not always returned in the order of most reviews first) and pages to scrape (defaults to 1000).
+    - To scrape an existing product, select the product from the dropdown list and the scraper will continue from where it left off.
+    - Perhaps make the HTML look pretty while the scraper runs so you dont have to sart at such a horrible layout.
+
+---
+
+
 ## Solved Issues
 - Rudimentary solution to locally tracking progress in scraping by using a JSON file that is updated at each new page and product.
 - Restarting can be easily done by simply selecting the directory of the product you want to continue scraping. 
