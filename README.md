@@ -2,7 +2,7 @@
 
 This project harnesses the power of Node.js, Puppeteer, and the Bright Data Proxy Browser to scrape thousands of product reviews of different products from Amazon. The inspiration and initial code template for this project was sourced from https://www.youtube.com/watch?v=qo_fUjb02ns
 
-The scraper will start scraping Amazon for reviews of the desired product, and the scraped data will be saved in a JSON file in the project directory. The outputs of this web scraper essentially create a custom API for Amazon reviews.
+The scraper will start scraping Amazon for reviews of the desired product, and the scraped data will be saved in a JSON file in the project directory. The script will create new directories for new products or acces existing ones. The outputs of this web scraper essentially create a custom API for Amazon reviews.
 
 ![Example Output](screenshot.png "Example output")
 
