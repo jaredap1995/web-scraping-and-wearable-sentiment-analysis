@@ -54,5 +54,56 @@ CREATE INDEX gin_reviews ON reviews USING gin(text_vector);
 EXPLAIN SELECT data->>'title' 
 FROM reviews 
 WHERE text_vector @@ to_tsquery('english', 'great');
-                                 QUERY PLAN  
+
+
+--Create a new larger table for all reviews
+CREATE TABLE all_reviews AS
+SELECT * FROM table1
+UNION ALL
+SELECT * FROM apple_watch
+UNION ALL
+SELECT * FROM whoop
+UNION ALL
+SELECT * FROM pixel_watch;
+
+
+--Query to rank critical keywords
+SELECT keyword, COUNT(*)
+FROM
+(
+    SELECT 'battery' AS keyword, text_vector FROM all_reviews
+    UNION ALL
+    SELECT 'fitness', text_vector FROM all_reviews
+    UNION ALL
+    SELECT 'health', text_vector FROM all_reviews
+    UNION ALL
+    SELECT 'sleep', text_vector FROM all_reviews
+    UNION ALL
+    SELECT 'hardware', text_vector FROM all_reviews
+      UNION ALL
+      SELECT 'software', text_vector FROM all_reviews
+      UNION ALL
+      SELECT 'design', text_vector FROM all_reviews
+      UNION ALL
+      SELECT 'comfort', text_vector FROM all_reviews
+      UNION ALL
+      SELECT 'price', text_vector FROM all_reviews
+      UNION ALL
+      SELECT 'style', text_vector FROM all_reviews
+      UNION ALL
+      SELECT 'monitoring', text_vector FROM all_reviews
+      UNION ALL
+      SELECT 'heart_rate', text_vector FROM all_reviews
+      UNION ALL
+      SELECT 'durability', text_vector FROM all_reviews
+      UNION ALL
+      SELECT 'GPS', text_vector FROM all_reviews
+      UNION ALL
+      SELECT 'waterproof', text_vector FROM all_reviews
+) AS subquery
+WHERE text_vector @@ to_tsquery('english', keyword)
+GROUP BY keyword
+ORDER BY COUNT(*);
+
+
 

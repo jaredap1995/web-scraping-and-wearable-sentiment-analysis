@@ -109,8 +109,12 @@ async function scrapeReviews(page, baseUrl, productName, progress) {
 
     console.log(`Writing file for product: ${productName}`);
     if (fs.existsSync(`./${productName}/${productName}_reviews.json`)) {
-        reviews = JSON.parse(fs.readFileSync(`./${productName}/${productName}_reviews.json`));
+        let data = fs.readFileSync(`./${productName}/${productName}_reviews.json`, 'utf8');
+        if (data) {
+            reviews = JSON.parse(data);
+        }
     }
+
 
     let keepScraping = true;
     let pageNum = progress.pageNum; // Start from where we left off
