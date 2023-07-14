@@ -57,7 +57,7 @@ This project uses Node.js and Puppeteer. Follow these steps to set up and run th
 
 ## Issues
 - Looking to find a way to run the process on a web socket so someone interested can simply travel to a webapge, enter in their bright data information and scrape without needing to clone the repository. 
-- Will myself to care about improving the dreaded front end even though I don't care about front end.
+- Will myself to care about improving the dreaded front end.
 - I made every attempt to maximize the amount of reviews scraped which included getting reviews from different languages. In some instances the 'innerText' was undefined. If this appears restarting the script will work, however in the event the HTML format on the page has changed you may need to manually modify the HTML element. Usually this error is related to the 'textElement' or 'titleElement'. You may also circumvent this issue by changing my '||' to '&&' in the 'scrapeCurrentPageReviews' function
 
 
